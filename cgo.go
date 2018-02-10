@@ -34,8 +34,10 @@ func ConvertPrimitive() {
 func ConvertArray() {
 	goInSlice := []int{1, 2, 3, 4, 5}
 
-	// Allocate C array, don't forget to free it at the end to avoid memory leaks.
+	// Allocate C array.
 	cArray := C.calloc(C.size_t(len(goInSlice)), 4) // Set calloc size to 4 because C int is 4 bytes
+	// Don't forget to free C allocations at the end to avoid memory leaks.
+	defer C.free(cArray)
 	cArrayUnsafePtr := unsafe.Pointer(cArray)
 
 	// Synchronously iterate over Go slice and C array, copying values from Go slice to C array.
@@ -44,7 +46,7 @@ func ConvertArray() {
 		cArrayItemUnsafePtr := unsafe.Pointer(cArrayIndex)
 		cArrayItemCIntPtr := (*C.int)(cArrayItemUnsafePtr)
 
-		// Write value to C array item.
+		// Write value to C array.
 		goInt := goInSlice[goSliceIndex]
 		cInt := C.int(goInt)
 		*cArrayItemCIntPtr = cInt
@@ -62,14 +64,11 @@ func ConvertArray() {
 		cArrayItemUnsafePtr := unsafe.Pointer(cArrayIndex)
 		cArrayItemCIntPtr := (*C.int)(cArrayItemUnsafePtr)
 
-		// Read value from C array item.
+		// Read value from C array.
 		cInt := *cArrayItemCIntPtr
 		goInt := int(cInt)
 		goOutSlice[goSliceIndex] = goInt
 	}
-
-	// Every *alloc must be paired with a free!
-	C.free(cArray)
 
 	Expect(goInSlice).To(Equal([]int{1, 2, 3, 4, 5}))
 	Expect(goOutSlice).To(Equal([]int{5, 4, 3, 2, 1}))
