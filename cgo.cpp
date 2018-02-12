@@ -5,13 +5,17 @@ extern "C" {
 
 int integer(int val) { return val; }
 
-void integer_array(void *array, int size) {
-  int *intArray = (int *)array;
-  int i, j;
-  for (i = 0, j = size - 1; i < j; i++, j--) {
-    int t = intArray[i];
-    intArray[i] = intArray[j];
-    intArray[j] = t;
+void integer_array(int *array, int size) {
+  for (int i = 0, j = size - 1; i < j; i++, j--) {
+    int t = array[i];
+    array[i] = array[j];
+    array[j] = t;
+  }
+}
+
+void integer_grid(int **grid, int size) {
+  for (int i = 0; i < size; i++) {
+    integer_array(grid[i], size);
   }
 }
 
